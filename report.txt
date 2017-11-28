@@ -1,0 +1,11 @@
+1.1. Topologie et Adressage
+
+- Installed one echo server in VM3 and VM3-6
+- Peut-on faire que le serveur n'écoute qu'en IPv6 sur VM3 ?
+---> Yes, we can. By changing this line "echo stream tcp nowait nobody internal" to "echo stream tcp6 nowait nobody internal"
+in file﻿/etc/inetd.conf in VM3, we change the echo server from serving IPv4 to serving IPv6
+
+
+1.2. Un grand malheur !
+
+- Use IPv6 tunnel through IPv4 network. The details method is described in the next steps
