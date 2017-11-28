@@ -13,6 +13,7 @@ ip route del default:
     - run
 
 ## Configuration de VM2
+## LAN1
 eth1:
   network.managed:
     - enabled: True
@@ -21,6 +22,7 @@ eth1:
     - ipaddr: 172.16.2.132
     - netmask: 28
 
+## LAN2
 eth2:
   network.managed:
     - enabled: True

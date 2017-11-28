@@ -13,6 +13,7 @@ ip route del default:
     - run
 
 ## Configuration de VM3
+## LAN2
 eth1:
   network.managed:
     - enabled: True
@@ -20,6 +21,19 @@ eth1:
     - proto: none
     - ipaddr: 172.16.2.163
     - netmask: 28
+
+## LAN4-6
+eth2:
+  network.managed:
+    - enabled: True
+    - type: eth
+    - proto: none
+    - enable_ipv4: false
+    - ipv6proto: static
+    - enable_ipv6: true
+    - ipv6_autoconf: no
+    - ipv6ipaddr: fc00:1234:4::3
+    - ipv6netmask: 64
 
 ## Configuration de la route vers LAN1 via VM2
 routes:
