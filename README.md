@@ -12,4 +12,4 @@ $ ./configure-tun.sh
 ~~~~
 
 The script `configure-tun.sh` will ask you to enter the device name and it will config the device with
-IP v6: fc00:1234:ffff::1/64
+IP v6: `fc00:1234:ffff::1/64`
