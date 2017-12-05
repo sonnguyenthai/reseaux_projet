@@ -6,23 +6,11 @@
     extremite.c
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h> 
-#include <sys/stat.h>
-#include <sys/ioctl.h>
+#include "extremite.h"
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <linux/if.h>
-#include <linux/if_tun.h>
-#include <netdb.h>
+void ext_out(){
 
-/* taille maximale des lignes */
-#define MAXLIGNE 80
-
-void ext_out (){
+    printf("ext-out running...\n");
 
     int s,n; /* descripteurs de socket */
     int len,on; /* utilitaires divers */
@@ -108,16 +96,83 @@ void ext_out (){
     return;
 }
 
-int ext_in(int *port){
-    return -1 ;
+void ext_in(int tun_fd_in){
+    printf("ext-in running...\n");
+
+    int tun_fd = tun_fd_in ;
+    int sock_fd = SOCK_STREAM ;
+    char buffer[MAX_MTU] ;
+    int stat, r_bytes, w_bytes ;
+    int length = 0 ;
+
+    fd_set read_set ;
+
+    while(1){
+        FD_ZERO(&read_set);
+        FD_SET(tun_fd, &read_set);
+        stat = select(tun_fd+1, &read_set, NULL, NULL, NULL);
+
+        if(stat < 0){
+            printf("Erreur : stat = __select__\n");
+            exit(1);
+        }
+
+        if(FD_ISSET(tun_fd, &read_set)){
+            w_bytes = 0 ;
+            stat = 0 ;
+            r_bytes = 0 ;
+
+            bzero(buffer,MAX_MTU);
+
+            r_bytes = read(tun_fd, buffer, MAX_MTU);
+            if(r_bytes < 0){
+                printf("Erreurr tun0 - __read__ échoué");
+            }
+            
+            length = htons(r_bytes);
+
+            w_bytes = write(sock_fd, &length, sizeof(length));
+            if(w_bytes < 0){
+                printf("Erreur __write__ sur la socket échoué\n");
+            }
+
+            w_bytes = write(sock_fd, buffer,r_bytes);
+            if(w_bytes < r_bytes){
+                printf("Erreur __ write__ (2) sur le socket échoué\n");
+            }
+
+            printf("Reçu: %d bytes en provenance de tun0 et %d bytes écrit sur la socket\n", r_bytes, w_bytes);
+        }
+    }
 }
 
 int main (int argc, char** argv){
 
-  if(argc != 2)
+  if(argc != 3)
   {
-    printf("Usage: %s tun_name\n",argv[0]);
+    printf("Usage: %s tun_name -[mode]\nServeur set: -s\nClient set: -c\n",argv[0]);
     exit(1);
+  }
+
+  char *mode = argv[2];
+  char *tun_name = argv[1];
+
+  printf("tun_name: %s\n",argv[1]);
+
+  int tun_fd = tun_alloc(tun_name);
+
+  switch(mode[1]){
+    case 'c':
+        printf("Client >>\n");
+        ext_in(tun_fd);
+        break;
+    case 's':
+        printf("Serveur >>\n");
+        ext_out();
+        break;
+    default:
+        printf("Erreur __mode__\n");
+        break;
   }
 
 
